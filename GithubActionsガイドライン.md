@@ -128,3 +128,66 @@ jobs:
   build:
     timeout-minutes: 10
 ```
+
+## 7. 不要なワークフローのスキップ
+
+### 方針
+
+関係のあるファイルが変更された場合にのみ実行されるようにする。
+例： web アプリのテストは apps/web と apps/web が依存している packages/database が変更された場合に実行する
+
+### 理由
+
+- GitHub Actions は実行時間で課金されるため、不必要な実行を削減するため
+- 無関係なワークフロー実行によるマージ遅延を防ぎ、開発効率を低下させないため
+
+### 実装方法
+
+ファイル変更の検出方法は、ジョブがマージの必須条件に指定されているかどうかで使い分ける。
+
+#### マージの必須条件に指定されていないジョブの場合
+
+GitHub Actions の標準機能 `paths-ignore` を使用してパスを指定する。
+
+```yaml
+on:
+  push:
+    branches: [develop, main]
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+  pull_request:
+    branches: ["**"]
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+```
+
+#### マージの必須条件に指定されているジョブの場合
+
+`paths-ignore` に設定したパスではワークフロー自体が起動しないため、マージ必須のジョブが pass とならず、マージできなくなる。
+
+そのため、`dorny/paths-filter` を使用してステップレベルの制御を行う。
+
+```yaml
+jobs:
+  need-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: チェックアウト
+        uses: actions/checkout@v4
+
+      - name: 変更ファイルの検出
+        uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          predicate-quantifier: every # フィルターの条件を AND 条件にするために必要。 default は same で or 条件
+          filters: |
+            web:
+              - 'apps/web/**'
+              - '!**/*.md'
+
+      - name: web のテスト実行
+        if: ${{ steps.filter.outputs.web == 'true' }}
+        run: test
+```
