@@ -191,3 +191,35 @@ jobs:
         if: ${{ steps.filter.outputs.web == 'true' }}
         run: test
 ```
+
+## 8. サードパーティ Actions の SHA ピン留め
+
+### 方針
+
+サードパーティ Actions の指定には、`@v4` などのタグやブランチではなく、コミット SHA 形式での指定を行うこと。
+
+### 理由
+
+`@v4` などのタグ方式やブランチ指定の場合、対象の Action のリポジトリが悪意のあるコードに置き換えられた際に、その悪意のあるコードを実行してしまうリスクがある。
+コミット SHA の場合は immutable なため、参照先の変更による影響を減らせる。
+
+### 実装方法
+
+#### ローカルでの追加・更新時
+
+[suzuki-shunsuke/pinact](https://github.com/suzuki-shunsuke/pinact) を使用して SHA 形式にピン留めする。
+
+```yaml
+- name: リポジトリのチェックアウト
+  uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+```
+
+#### Renovate による自動更新
+
+`renovate.json` に `pinGitHubActionDigests` を追加し、アップデート時に自動的に SHA 形式へ変換されるようにする。
+
+```json
+{
+  "extends": ["config:recommended", "helpers:pinGitHubActionDigests"]
+}
+```
