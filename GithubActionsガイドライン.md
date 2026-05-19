@@ -170,6 +170,7 @@ on:
 そのため、`dorny/paths-filter` を使用してステップレベルの制御を行う。
 
 ```yaml
+# サーバーテストの例
 jobs:
   need-ci:
     runs-on: ubuntu-latest
@@ -184,13 +185,29 @@ jobs:
           predicate-quantifier: every # フィルターの条件を AND 条件にするために必要。 default は same で or 条件
           filters: |
             web:
-              - 'apps/web/**'
+              - 'apps/web/**'  # apps/web ディレクトリ内の任意のファイルを対象とする
+              - '!**/*.md'     # And .md ファイルは除外（サーバーテストでドキュメントの更新は無関係なため
+              - '!**/eslint.config.mjs' # And eslint.config.mjs は除外（サーバーテストでは ESLint の設定変更は無関係なため
+            logger:
+              - 'packages/logger/**'
               - '!**/*.md'
+              
+      - name: 実行要否の判定
+        id: should-run
+        run: echo "result=${{ steps.filter.outputs.web == 'true' || steps.filter.outputs.logger == 'true' }}" >> $GITHUB_OUTPUT
 
       - name: web のテスト実行
-        if: ${{ steps.filter.outputs.web == 'true' }}
+        if: steps.should-run.outputs.result == 'true'
         run: test
 ```
+
+### 例外
+
+フィルター条件のメンテナンスコストがかかることと、Github Actions は 1 分単位の課金のため 1 分未満の実行でも 1 分として課金されることから
+以下の場合のどちらかに該当する場合は例外とし、コメントでその理由を記載してスキップ設定を省略すること
+
+- ほとんどのファイルがワークフローの対象
+- ワークフローが 3 分未満
 
 ## 8. サードパーティ Actions の SHA ピン留め
 
