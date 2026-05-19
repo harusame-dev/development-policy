@@ -181,6 +181,8 @@ jobs:
       - name: 変更ファイルの検出
         uses: dorny/paths-filter@v2
         id: filter
+        permissions:  # dorny/paths-filter には pull-requests の read 権限が必要
+          pull-requests: read
         with:
           predicate-quantifier: every # フィルターの条件を AND 条件にするために必要。 default は same で or 条件
           filters: |
