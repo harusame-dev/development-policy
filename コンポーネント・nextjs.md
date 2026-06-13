@@ -1,6 +1,6 @@
-# コンポーネント設計（Next.js）
+# コンポーネント（Next.js）
 
-Next.js におけるコンポーネントの設計方針をまとめる。Page Component・Server Component・Container / Presentational・client component の扱いを対象とする。命名は [ファイル命名ルール（Next.js）](./ファイル命名ルール・nextjs.md)、テストの扱いは [テストポリシー（Next.js）](./テストポリシー・nextjs.md) を参照する。
+Next.js におけるコンポーネントの設計方針をまとめる。Page Component・Server Component・Container / Presentational・client component の扱いを対象とする。命名は [ファイル命名（Next.js）](./ファイル命名・nextjs.md)、テストの扱いは [テスト（Next.js）](./テスト・nextjs.md) を参照する。
 
 ## 1. Container / Presentational パターン
 

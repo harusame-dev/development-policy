@@ -1,4 +1,4 @@
-# CIルール（GitHub Actions）
+# CI（GitHub Actions）
 
 ## 概要
 

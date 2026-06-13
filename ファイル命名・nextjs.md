@@ -1,4 +1,4 @@
-# ファイル命名ルール（Next.js）
+# ファイル命名（Next.js）
 
 Next.js の file convention（`page.tsx` / `layout.tsx` / `route.ts` など、フレームワークが予約するファイル名）は本ルールの対象外とする。
 
